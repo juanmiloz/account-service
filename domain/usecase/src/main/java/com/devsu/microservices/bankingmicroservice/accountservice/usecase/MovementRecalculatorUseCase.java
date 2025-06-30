@@ -14,15 +14,13 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class MovementRecalculatorService {
+public class MovementRecalculatorUseCase {
 
     private final MovementRepository movementRepository;
 
     public Mono<Void> recalculateAll(Account account) {
-        UUID aid = account.getAccountId();
-
         return movementRepository
-                .getAllMovementsByAccountIdOrderByTimestampAsc(aid)
+                .getAllMovementsByAccountIdOrderByTimestampAsc(account.getAccountId())
                 .collectList()
                 .flatMapMany(list -> {
                     double running = account.getInitialBalance();

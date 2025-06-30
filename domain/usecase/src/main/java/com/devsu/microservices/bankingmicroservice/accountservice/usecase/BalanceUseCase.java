@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class BalanceService {
+public class BalanceUseCase {
 
     private final MovementRepository movementRepository;
     private final AccountRepository accountRepository;

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,9 +21,9 @@ public class MovementCrudUseCase {
 
     private final MovementRepository movementRepository;
     private final AccountRepository accountRepository;
-    private final BalanceService balanceSvc;
-    private final MovementValidator validator;
-    private final MovementRecalculatorService recalculator;
+    private final BalanceUseCase balanceSvc;
+    private final MovementValidatorUseCase validator;
+    private final MovementRecalculatorUseCase recalculator;
 
     public Mono<Movement> createMovement(Movement m) {
         return accountRepository.getAccountById(m.getAccountId())
@@ -74,10 +73,8 @@ public class MovementCrudUseCase {
     }
 
     public Mono<Void> recalculateAllBalances(Account account) {
-        UUID accountId = account.getAccountId();
-
         return movementRepository
-                .getAllMovementsByAccountIdOrderByTimestampAsc(accountId)
+                .getAllMovementsByAccountIdOrderByTimestampAsc(account.getAccountId())
                 .collectList()
                 .flatMapMany(list -> {
                     double running = account.getInitialBalance();

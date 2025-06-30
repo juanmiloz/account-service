@@ -16,7 +16,7 @@ import java.util.UUID;
 public class AccountCrudUseCase {
 
     private final AccountRepository accountRepository;
-    private final MovementRecalculatorService movementRecalculatorService;
+    private final MovementRecalculatorUseCase movementRecalculatorService;
 
     public Mono<Account> createAccount(Account account) {
         return Mono.just(account)

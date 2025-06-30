@@ -6,26 +6,26 @@ import com.devsu.microservices.bankingmicroservice.accountservice.model.exceptio
 import org.springframework.stereotype.Component;
 
 @Component
-public class MovementValidator {
+public class MovementValidatorUseCase {
 
-    public Movement validateAndCalculate(Movement m, double currentBalance) {
+    public Movement validateAndCalculate(Movement movement, double currentBalance) {
         double newBal;
-        String t = m.getMovementType().toUpperCase();
+        String t = movement.getMovementType().toUpperCase();
 
         switch (t) {
-            case "CREDIT", "DEPOSIT" -> newBal = currentBalance + m.getValue();
+            case "CREDIT", "DEPOSIT" -> newBal = currentBalance + movement.getValue();
             case "DEBIT", "WITHDRAWAL" -> {
-                if (currentBalance < m.getValue()) {
+                if (currentBalance < movement.getValue()) {
                     throw new DomainException(ErrorType.BUSINESS_RULE_VIOLATION,
                             "Insufficient funds");
                 }
-                newBal = currentBalance - m.getValue();
+                newBal = currentBalance - movement.getValue();
             }
             default -> throw new DomainException(ErrorType.BUSINESS_RULE_VIOLATION,
                     "Invalid movement type");
         }
 
-        return m.toBuilder()
+        return movement.toBuilder()
                 .balance(newBal)
                 .build();
     }
