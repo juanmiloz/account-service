@@ -16,6 +16,7 @@ import java.util.UUID;
 public class AccountCrudUseCase {
 
     private final AccountRepository accountRepository;
+    private final MovementRecalculatorService movementRecalculatorService;
 
     public Mono<Account> createAccount(Account account) {
         return Mono.just(account)
@@ -33,8 +34,18 @@ public class AccountCrudUseCase {
 
     public Mono<Account> updateAccount(Account account) {
         return accountRepository.getAccountById(account.getAccountId())
-                .switchIfEmpty(Mono.error(new DomainException(ErrorType.NOT_FOUND, "Client not found")))
-                .flatMap(existingAccount -> accountRepository.updateAccount(account));
+                .switchIfEmpty(
+                        Mono.error(new DomainException(
+                                ErrorType.NOT_FOUND, "Account not found"))
+                )
+                .flatMap(existing ->
+                        accountRepository.updateAccount(account)
+                                .flatMap(updatedAccount ->
+                                        movementRecalculatorService
+                                                .recalculateAll(updatedAccount)
+                                                .thenReturn(updatedAccount)
+                                )
+                );
     }
 
 }

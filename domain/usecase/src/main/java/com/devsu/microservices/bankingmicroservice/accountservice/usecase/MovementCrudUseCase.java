@@ -11,9 +11,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.chrono.ChronoLocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -24,13 +22,19 @@ public class MovementCrudUseCase {
 
     private final MovementRepository movementRepository;
     private final AccountRepository accountRepository;
+    private final BalanceService balanceSvc;
+    private final MovementValidator validator;
+    private final MovementRecalculatorService recalculator;
 
-    public Mono<Movement> createMovement(Movement movement) {
-        return accountRepository.getAccountById(movement.getAccountId())
-                .switchIfEmpty(Mono.error(new DomainException(ErrorType.NOT_FOUND, "Account not found")))
-                .flatMap(account -> getCurrentBalance(movement.getAccountId())
-                        .map(currentBalance -> validateAndCalculateBalance(movement, currentBalance))
-                        .flatMap(movementRepository::createMovement));
+    public Mono<Movement> createMovement(Movement m) {
+        return accountRepository.getAccountById(m.getAccountId())
+                .switchIfEmpty(Mono.error(
+                        new DomainException(ErrorType.NOT_FOUND, "Account not found")))
+                .flatMap(acc ->
+                        balanceSvc.getCurrentBalance(m.getAccountId())
+                                .map(bal -> validator.validateAndCalculate(m, bal))
+                                .flatMap(movementRepository::createMovement)
+                );
     }
 
     public Mono<Movement> getMovementById(UUID id) {
@@ -42,94 +46,38 @@ public class MovementCrudUseCase {
         return movementRepository.getAllMovements();
     }
 
-    public Mono<Movement> updateMovement(Movement updatedMovement) {
-        UUID accountId        = updatedMovement.getAccountId();
-
-        return movementRepository.getMovementById(updatedMovement.getMovementId())
-                .switchIfEmpty(Mono.error(new DomainException(ErrorType.NOT_FOUND, "Movement not found")))
+    public Mono<Movement> updateMovement(Movement updated) {
+        return movementRepository.getMovementById(updated.getMovementId())
+                .switchIfEmpty(Mono.error(
+                        new DomainException(ErrorType.NOT_FOUND, "Movement not found")))
                 .flatMap(existing ->
-                        accountRepository.getAccountById(accountId)
-                                .switchIfEmpty(Mono.error(new DomainException(ErrorType.NOT_FOUND, "Account not found")))
-                                .flatMap(account ->
-                                        getBalanceUpTo(accountId, updatedMovement.getMovementId(), existing.getTimestamp())
-                                                .map(currentBalance -> validateAndCalculateBalance(updatedMovement, currentBalance))
-                                                .flatMap(toSave ->
-                                                        movementRepository.updateMovement(
-                                                                toSave.toBuilder()
-                                                                        .movementId(updatedMovement.getMovementId())
-                                                                        .timestamp(existing.getTimestamp())
-                                                                        .build()
-                                                        )
+                        accountRepository.getAccountById(updated.getAccountId())
+                                .switchIfEmpty(Mono.error(
+                                        new DomainException(ErrorType.NOT_FOUND, "Account not found")))
+                                .flatMap(acc ->
+                                        balanceSvc.getBalanceUpTo(
+                                                        acc.getAccountId(),
+                                                        existing.getTimestamp(),
+                                                        existing.getMovementId()
                                                 )
-                                                .flatMap(saved -> recalculateAllBalances(account).thenReturn(saved))
+                                                .map(bal -> validator.validateAndCalculate(updated, bal))
+                                                .flatMap(mv -> movementRepository.updateMovement(
+                                                        mv.toBuilder()
+                                                                .timestamp(existing.getTimestamp())
+                                                                .build()
+                                                ))
+                                                .flatMap(saved ->
+                                                        recalculator.recalculateAll(acc).thenReturn(saved)
+                                                )
                                 )
                 );
     }
 
-    private Mono<Double> getCurrentBalance(UUID accountId) {
-        Mono<Double> deltaSum = movementRepository.getAllMovements()
-                .filter(m -> m.getAccountId().equals(accountId))
-                .map(m -> {
-                    String t = m.getMovementType().toUpperCase();
-                    if (t.equals("CREDIT") || t.equals("DEPOSIT")) {
-                        return m.getValue();
-                    } else if (t.equals("DEBIT") || t.equals("WITHDRAWAL")) {
-                        return -m.getValue();
-                    }
-                    return 0.0;
-                })
-                .reduce(Double::sum)
-                .defaultIfEmpty(0.0);
-
-        return accountRepository.getAccountById(accountId)
-                .flatMap(acc ->
-                        deltaSum.map(sum -> acc.getInitialBalance() + sum)
-                );
-    }
-
-    private Movement validateAndCalculateBalance(Movement movement, Double currentBalance) {
-        Double newBalance;
-
-        if ("CREDIT".equalsIgnoreCase(movement.getMovementType()) || "DEPOSIT".equalsIgnoreCase(movement.getMovementType())) {
-            newBalance = currentBalance + movement.getValue();
-        } else if ("DEBIT".equalsIgnoreCase(movement.getMovementType()) || "WITHDRAWAL".equalsIgnoreCase(movement.getMovementType())) {
-            if (currentBalance < movement.getValue()) {
-                throw new DomainException(ErrorType.BUSINESS_RULE_VIOLATION, "Insufficient funds");
-            }
-            newBalance = currentBalance - movement.getValue();
-        } else {
-            throw new DomainException(ErrorType.BUSINESS_RULE_VIOLATION, "Invalid movement type");
-        }
-
-        return movement.toBuilder()
-                .balance(newBalance)
-                .build();
-    }
-
-    private Mono<Double> getCurrentBalanceExcludingMovement(UUID accountId, UUID excludeMovementId) {
-        Mono<Double> deltaSum = movementRepository.getAllMovements()
-                .filter(m -> m.getAccountId().equals(accountId))
-                .filter(m -> !m.getMovementId().equals(excludeMovementId))
-                .map(m -> {
-                    String t = m.getMovementType().toUpperCase();
-                    if (t.equals("CREDIT") || t.equals("DEPOSIT"))    return m.getValue();
-                    if (t.equals("DEBIT")  || t.equals("WITHDRAWAL")) return -m.getValue();
-                    return 0.0;
-                })
-                .reduce(Double::sum)
-                .defaultIfEmpty(0.0);
-
-        return accountRepository.getAccountById(accountId)
-                .flatMap(acc ->
-                        deltaSum.map(sum -> acc.getInitialBalance() + sum)
-                );
-    }
-
-    private Mono<Void> recalculateAllBalances(Account account) {
+    public Mono<Void> recalculateAllBalances(Account account) {
         UUID accountId = account.getAccountId();
 
         return movementRepository
-                .getAllMovementsByAccountIdOrderByDateAsc(accountId)
+                .getAllMovementsByAccountIdOrderByTimestampAsc(accountId)
                 .collectList()
                 .flatMapMany(list -> {
                     double running = account.getInitialBalance();
@@ -147,30 +95,5 @@ public class MovementCrudUseCase {
                 .flatMap(movementRepository::updateMovement)
                 .then();
     }
-
-    private Mono<Double> getBalanceUpTo(UUID accountId,
-                                        UUID excludeMovementId,
-                                        LocalDateTime cutOffTimestamp) {
-
-        Mono<Double> deltaSum = movementRepository.getAllMovements()
-                .filter(m -> m.getAccountId().equals(accountId))
-                .filter(m -> !m.getMovementId().equals(excludeMovementId))
-                .filter(m -> !m.getTimestamp().isAfter(cutOffTimestamp))
-                .map(m -> {
-                    String type = m.getMovementType().toUpperCase();
-                    if (type.equals("CREDIT") || type.equals("DEPOSIT")) {
-                        return m.getValue();
-                    } else if (type.equals("DEBIT") || type.equals("WITHDRAWAL")) {
-                        return -m.getValue();
-                    }
-                    return 0.0;
-                })
-                .reduce(Double::sum)
-                .defaultIfEmpty(0.0);
-
-        return accountRepository.getAccountById(accountId)
-                .flatMap(acc -> deltaSum.map(sum -> acc.getInitialBalance() + sum));
-    }
-
 
 }

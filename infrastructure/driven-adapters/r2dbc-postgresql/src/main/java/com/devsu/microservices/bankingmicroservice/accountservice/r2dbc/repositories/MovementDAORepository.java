@@ -10,6 +10,6 @@ import java.util.UUID;
 public interface MovementDAORepository extends ReactiveCrudRepository<MovementDAO, UUID> {
 
     @Query("SELECT * FROM movement WHERE account_id = :accountId ORDER BY timestamp ASC")
-    Flux<MovementDAO> findByAccountIdOrderByDateAsc(UUID accountId);
+    Flux<MovementDAO> findByAccountIdOrderByTimestampAsc(UUID accountId);
 
 }

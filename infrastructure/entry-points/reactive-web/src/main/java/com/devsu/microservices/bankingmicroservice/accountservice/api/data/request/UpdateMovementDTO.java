@@ -3,7 +3,6 @@ package com.devsu.microservices.bankingmicroservice.accountservice.api.data.requ
 import com.devsu.microservices.bankingmicroservice.accountservice.model.Movement;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
-import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;

@@ -14,9 +14,8 @@ public interface MovementRepository {
 
     Flux<Movement> getAllMovements();
 
+    Flux<Movement> getAllMovementsByAccountIdOrderByTimestampAsc(UUID accountId);
+
     Mono<Movement> updateMovement(Movement movement);
-
-    Flux<Movement> getAllMovementsByAccountIdOrderByDateAsc(UUID accountId);
-
 
 }

@@ -40,9 +40,9 @@ public class MovementRepositoryAdapter implements MovementRepository {
     }
 
     @Override
-    public Flux<Movement> getAllMovementsByAccountIdOrderByDateAsc(UUID accountId) {
+    public Flux<Movement> getAllMovementsByAccountIdOrderByTimestampAsc(UUID accountId) {
         return movementDAORepository
-                .findByAccountIdOrderByDateAsc(accountId)
+                .findByAccountIdOrderByTimestampAsc(accountId)
                 .map(mapper::toMovement);
     }
 

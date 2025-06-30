@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 
-public record UpdateAccount(
+public record UpdateAccountDTO(
 
         @NotBlank(message = "Account id is required.")
         UUID accountId,
@@ -34,7 +34,7 @@ public record UpdateAccount(
 
 ) {
 
-    public static Account toAccount(UpdateAccount accountDTO) {
+    public static Account toAccount(UpdateAccountDTO accountDTO) {
         return new Account(
                 accountDTO.accountId(),
                 accountDTO.clientName(),
