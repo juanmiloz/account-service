@@ -56,4 +56,8 @@ public class AccountCrudUseCase {
                 );
     }
 
+    public Flux<Account> getAccountsByClientId(UUID clientId) {
+        return accountRepository.getAccountsByClientId(clientId);
+    }
+
 }

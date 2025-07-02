@@ -1,9 +1,11 @@
 package com.devsu.microservices.bankingmicroservice.accountservice.api.data.request;
 
 import com.devsu.microservices.bankingmicroservice.accountservice.model.Movement;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Size;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

@@ -1,5 +1,6 @@
 package com.devsu.microservices.bankingmicroservice.accountservice.r2dbc;
 
+import com.devsu.microservices.bankingmicroservice.accountservice.model.Account;
 import com.devsu.microservices.bankingmicroservice.accountservice.model.Movement;
 import com.devsu.microservices.bankingmicroservice.accountservice.model.gateway.MovementRepository;
 import com.devsu.microservices.bankingmicroservice.accountservice.r2dbc.helpers.MovementDAOMapper;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -52,4 +55,11 @@ public class MovementRepositoryAdapter implements MovementRepository {
                 .save(mapper.toMovementDAO(movement))
                 .map(mapper::toMovement);
     }
+
+    @Override
+    public Flux<Movement> getMovementsByAccountIdAndDateRangeOrderDes(UUID accountId, LocalDateTime startDate, LocalDateTime endDate) {
+        return movementDAORepository.findByAccountIdAndDateRangeOrderDes(accountId, startDate, endDate)
+                .map(mapper::toMovement);
+    }
+
 }

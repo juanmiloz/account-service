@@ -16,4 +16,6 @@ public interface AccountRepository {
 
     Mono<Account> updateAccount(Account account);
 
+    Flux<Account> getAccountsByClientId(UUID clientId);
+
 }

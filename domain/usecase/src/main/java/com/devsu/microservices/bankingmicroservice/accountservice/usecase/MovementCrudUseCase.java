@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -91,6 +93,10 @@ public class MovementCrudUseCase {
                 })
                 .flatMap(movementRepository::updateMovement)
                 .then();
+    }
+
+    public Flux<Movement> getMovementsByAccountId(Account account, LocalDateTime startDate,  LocalDateTime endDate) {
+        return movementRepository.getMovementsByAccountIdAndDateRangeOrderDes(account.getAccountId(), startDate, endDate);
     }
 
 }

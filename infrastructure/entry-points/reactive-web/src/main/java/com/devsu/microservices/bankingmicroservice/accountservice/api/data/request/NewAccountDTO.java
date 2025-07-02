@@ -41,6 +41,7 @@ public record NewAccountDTO(
                 accountDTO.accountType(),
                 accountDTO.initialBalance(),
                 accountDTO.status()
+
         );
     }
 

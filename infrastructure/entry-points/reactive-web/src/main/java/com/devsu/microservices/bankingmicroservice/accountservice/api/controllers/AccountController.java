@@ -46,5 +46,4 @@ public class AccountController implements AccountAPI {
                 .map(ResponseEntity::ok);
     }
 
-
 }

@@ -4,6 +4,7 @@ import com.devsu.microservices.bankingmicroservice.accountservice.model.Movement
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public interface MovementRepository {
@@ -17,5 +18,7 @@ public interface MovementRepository {
     Flux<Movement> getAllMovementsByAccountIdOrderByTimestampAsc(UUID accountId);
 
     Mono<Movement> updateMovement(Movement movement);
+
+    Flux<Movement> getMovementsByAccountIdAndDateRangeOrderDes(UUID accountId, LocalDateTime startDate, LocalDateTime endDate);
 
 }

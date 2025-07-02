@@ -45,4 +45,11 @@ public class AccountRepositoryAdapter implements AccountRepository {
                 .save(mapper.toAccountDAO(account))
                 .map(mapper::toAccount);
     }
+
+    @Override
+    public Flux<Account> getAccountsByClientId(UUID clientId) {
+        return accountDAORepository.findByClientId(clientId)
+                .map(mapper::toAccount);
+    }
+
 }
