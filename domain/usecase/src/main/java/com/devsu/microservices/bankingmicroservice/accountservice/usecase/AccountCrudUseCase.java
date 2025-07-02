@@ -21,9 +21,7 @@ public class AccountCrudUseCase {
     private final MovementRecalculatorUseCase movementRecalculationService;
 
     public Mono<Account> createAccount(Account account) {
-        return clientRequestProducer
-                .clientVerificationProducer(account.getClientId())  // Mono<Void> de envío
-                .then(accountRepository.createAccount(account))     // solo tras envío
+        return accountRepository.createAccount(account)
                 .flatMap(saved ->
                         movementRecalculationService
                                 .recalculateAll(saved)
