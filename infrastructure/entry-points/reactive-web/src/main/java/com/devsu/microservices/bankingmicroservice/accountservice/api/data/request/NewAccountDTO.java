@@ -6,10 +6,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
+import java.util.UUID;
+
 public record NewAccountDTO(
         @NotBlank(message = "Client name is required.")
         @Size(max = 100, message = "Client name must be at most 100 characters.")
         String clientName,
+
+        @NotNull(message = "Client ID is required.")
+        UUID clientId,
 
         @NotBlank(message = "Account number is required.")
         @Size(max = 30, message = "Account number must be at most 30 characters.")
@@ -30,6 +35,7 @@ public record NewAccountDTO(
     public static Account toAccount(NewAccountDTO accountDTO) {
         return new Account(
                 null,
+                accountDTO.clientId(),
                 accountDTO.clientName(),
                 accountDTO.accountNumber(),
                 accountDTO.accountType(),

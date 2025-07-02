@@ -14,6 +14,7 @@ import java.util.UUID;
 public class Account {
 
     private UUID accountId;
+    private UUID clientId;
     private String clientName;
     private String accountNumber;
     private String accountType;

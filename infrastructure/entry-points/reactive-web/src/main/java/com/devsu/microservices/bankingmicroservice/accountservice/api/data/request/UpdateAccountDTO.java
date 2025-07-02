@@ -37,6 +37,7 @@ public record UpdateAccountDTO(
     public static Account toAccount(UpdateAccountDTO accountDTO) {
         return new Account(
                 accountDTO.accountId(),
+                null,
                 accountDTO.clientName(),
                 accountDTO.accountNumber(),
                 accountDTO.accountType(),

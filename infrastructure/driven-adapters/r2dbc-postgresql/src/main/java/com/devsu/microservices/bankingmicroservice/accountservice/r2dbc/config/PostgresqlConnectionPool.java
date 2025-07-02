@@ -1,13 +1,11 @@
 package com.devsu.microservices.bankingmicroservice.accountservice.r2dbc.config;
 
-import com.devsu.microservices.bankingmicroservice.accountservice.model.enums.AccountType;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.pool.ConnectionPoolConfiguration;
+import io.r2dbc.postgresql.PostgresqlConnectionConfiguration;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
-import io.r2dbc.postgresql.codec.EnumCodec;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import io.r2dbc.postgresql.PostgresqlConnectionConfiguration;
 import org.springframework.context.annotation.Primary;
 
 import java.time.Duration;

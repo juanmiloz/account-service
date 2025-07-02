@@ -13,6 +13,7 @@ import java.util.UUID;
 public class AccountDAO {
     @Id
     private UUID accountId;
+    private UUID clientId;
     private String accountNumber;
     private String clientName;
     private String accountType;
