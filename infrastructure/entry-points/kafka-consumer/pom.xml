@@ -9,10 +9,10 @@
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
-    <groupId>com.devsu.microservices.bankingmicroservice.accountservice.kafkaproducer</groupId>
-    <artifactId>kafka-producer</artifactId>
+    <groupId>com.devsu.microservices.bankingmicroservice.accountservice.kafkaconsumer</groupId>
+    <artifactId>kafka-consumer</artifactId>
 
-    <name>kafka-producer</name>
+    <name>kafka-consumer</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -32,10 +32,9 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Internal dependencies -->
         <dependency>
-            <groupId>com.devsu.microservices.bankingmicroservice.accountservice.model</groupId>
-            <artifactId>model</artifactId>
+            <groupId>com.devsu.microservices.bankingmicroservice.accountservice.usecase</groupId>
+            <artifactId>usecase</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
@@ -70,8 +69,6 @@
             <version>2.25.0</version>
         </dependency>
 
-
-        <!-- test-->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>

@@ -15,7 +15,7 @@ import java.util.UUID;
 public interface AccountAPI {
 
     @PostMapping
-    Mono<ResponseEntity<Account>> createAccount(@Valid @RequestBody NewAccountDTO dto);
+    Mono<ResponseEntity<Void>> createAccount(@Valid @RequestBody NewAccountDTO dto);
 
     @GetMapping
     Flux<Account> getAllAccounts();

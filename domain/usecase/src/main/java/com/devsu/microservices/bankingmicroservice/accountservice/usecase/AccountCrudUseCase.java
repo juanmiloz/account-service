@@ -17,15 +17,13 @@ import java.util.UUID;
 public class AccountCrudUseCase {
 
     private final AccountRepository accountRepository;
-    private final ClientRequestProducer clientRequestProducer;
     private final MovementRecalculatorUseCase movementRecalculationService;
+    private final ClientRequestProducer clientRequestProducer;
 
     public Mono<Account> createAccount(Account account) {
         return accountRepository.createAccount(account)
-                .flatMap(saved ->
-                        movementRecalculationService
-                                .recalculateAll(saved)
-                                .thenReturn(saved)
+                .switchIfEmpty(
+                        Mono.error(new DomainException(ErrorType.INTERNAL_ERROR, "Failed to create account"))
                 );
     }
 
@@ -56,6 +54,10 @@ public class AccountCrudUseCase {
 
     public Flux<Account> getAccountsByClientId(UUID clientId) {
         return accountRepository.getAccountsByClientId(clientId);
+    }
+
+    public Mono<Void> validateClientAccount(Account account) {
+        return clientRequestProducer.clientVerificationProducer(account);
     }
 
 }

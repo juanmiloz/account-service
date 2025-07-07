@@ -9,9 +9,6 @@ import jakarta.validation.constraints.Size;
 import java.util.UUID;
 
 public record NewAccountDTO(
-        @NotBlank(message = "Client name is required.")
-        @Size(max = 100, message = "Client name must be at most 100 characters.")
-        String clientName,
 
         @NotNull(message = "Client ID is required.")
         UUID clientId,
@@ -36,7 +33,7 @@ public record NewAccountDTO(
         return new Account(
                 null,
                 accountDTO.clientId(),
-                accountDTO.clientName(),
+                null,
                 accountDTO.accountNumber(),
                 accountDTO.accountType(),
                 accountDTO.initialBalance(),

@@ -8,7 +8,7 @@
         <version>3.5.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.devsu.microservices.bankingmicroservice.account-service</groupId>
+    <groupId>com.devsu.microservices.bankingmicroservice.accountservice</groupId>
     <artifactId>account-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -37,6 +37,7 @@
         <module>domain/usecase</module>
         <module>applications/app-service</module>
         <module>infrastructure/entry-points/reactive-web</module>
+        <module>infrastructure/entry-points/kafka-consumer</module>
         <module>infrastructure/driven-adapters/r2dbc-postgresql</module>
         <module>infrastructure/driven-adapters/kafka-producer</module>
     </modules>

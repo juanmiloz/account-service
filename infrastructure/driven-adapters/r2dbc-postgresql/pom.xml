@@ -3,12 +3,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.devsu.microservices.bankingmicroservice.account-service</groupId>
+        <groupId>com.devsu.microservices.bankingmicroservice.accountservice</groupId>
         <artifactId>account-service</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
+    <groupId>com.devsu.microservices.bankingmicroservice.accountservice.r2dbc</groupId>
     <artifactId>r2dbc-postgresql</artifactId>
 
     <name>r2dbc-postgresql</name>
@@ -22,7 +23,7 @@
     <dependencies>
         <!-- Internal module-->
         <dependency>
-            <groupId>com.devsu.microservices.bankingmicroservice.account-service.model</groupId>
+            <groupId>com.devsu.microservices.bankingmicroservice.accountservice.model</groupId>
             <artifactId>model</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>

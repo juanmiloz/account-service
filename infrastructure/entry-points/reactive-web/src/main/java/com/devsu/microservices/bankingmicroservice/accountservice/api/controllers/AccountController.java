@@ -5,6 +5,7 @@ import com.devsu.microservices.bankingmicroservice.accountservice.api.data.reque
 import com.devsu.microservices.bankingmicroservice.accountservice.api.interfaces.AccountAPI;
 import com.devsu.microservices.bankingmicroservice.accountservice.model.Account;
 import com.devsu.microservices.bankingmicroservice.accountservice.usecase.AccountCrudUseCase;
+import com.devsu.microservices.bankingmicroservice.accountservice.usecase.MovementValidatorUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +20,18 @@ import java.util.UUID;
 public class AccountController implements AccountAPI {
 
     private final AccountCrudUseCase accountCrudUseCase;
+    private final MovementValidatorUseCase movementValidatorUseCase;
 
     @Override
-    public Mono<ResponseEntity<Account>> createAccount(NewAccountDTO dto) {
+    public Mono<ResponseEntity<Void>> createAccount(NewAccountDTO dto) {
         return accountCrudUseCase
-                .createAccount(NewAccountDTO.toAccount(dto))
-                .map(acc -> ResponseEntity.status(HttpStatus.CREATED).body(acc));
+                .validateClientAccount(NewAccountDTO.toAccount(dto))
+                .then(
+                        Mono.just(ResponseEntity
+                                .accepted()
+                                .build()
+                        )
+                );
     }
 
     @Override
